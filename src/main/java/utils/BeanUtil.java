@@ -19,7 +19,6 @@ public class BeanUtil {
         if (data == null) {
             throw new DataStreamException("bean.can.not.be.null");
         }
-        return JSON.parseObject(JSON.toJSONString(data), new TypeReference<T>() {
-        });
+        return JSON.parseObject(JSON.toJSONString(data),clazz);
     }
 }

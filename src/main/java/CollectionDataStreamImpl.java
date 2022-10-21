@@ -46,6 +46,15 @@ public class CollectionDataStreamImpl implements CollectionDataStream<Aggregatio
     @Override
     public <T1, R> CollectionDataStream<AggregationData> joinUseHashOnEqualCondition(
             Collection<T1> collection, String tableName, Function<AggregationData, R> aggregationMapper, Function<T1, R> dataValueMapper) {
+        if (this.aggregationDatas.size() <= collection.size()) {
+            return joinUseHashOnEqualConditionLeftMain(collection,tableName,aggregationMapper,dataValueMapper);
+        } else {
+            return joinUseHashOnEqualConditionRightMain(collection,tableName,aggregationMapper,dataValueMapper);
+        }
+    }
+
+    private  <T1, R> CollectionDataStream<AggregationData> joinUseHashOnEqualConditionLeftMain(
+            Collection<T1> collection, String tableName, Function<AggregationData, R> aggregationMapper, Function<T1, R> dataValueMapper) {
         Map<R, List<T1>> collectionMap = collection.stream().collect(Collectors.groupingBy(dataValueMapper));
         List<AggregationData> newAggregationDatas = new ArrayList<>();
         aggregationDatas.forEach(aggregationData -> {
@@ -62,6 +71,27 @@ public class CollectionDataStreamImpl implements CollectionDataStream<Aggregatio
         this.aggregationDatas = newAggregationDatas;
         return this;
     }
+
+    private <T1, R> CollectionDataStream<AggregationData> joinUseHashOnEqualConditionRightMain(
+            Collection<T1> collection, String tableName, Function<AggregationData, R> aggregationMapper, Function<T1, R> dataValueMapper) {
+        Map<R, List<AggregationData>> aggregationMap = this.aggregationDatas.stream().collect(Collectors.groupingBy(aggregationMapper));
+        List<AggregationData> newAggregationDatas = new ArrayList<>();
+        collection.forEach(data -> {
+            R joinKey = dataValueMapper.apply(data);
+            if (aggregationMap.containsKey(joinKey)) {
+                for (AggregationData aggregationData : aggregationMap.get(joinKey)) {
+                    AggregationData copyData = aggregationData.copyAggregationData();
+                    copyData.setTableData(tableName, data);
+                    newAggregationDatas.add(copyData);
+                }
+            }
+        });
+        //连接完毕替换当前数据
+        this.aggregationDatas = newAggregationDatas;
+        return this;
+    }
+
+
     @Override
     public <T1> CollectionDataStream<AggregationData> leftJoin( String tableName,Collection<T1> collection, JoinPredicate<AggregationData, T1> predict) {
         List<AggregationData> newAggregationDatas = new ArrayList<>();

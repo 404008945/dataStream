@@ -52,6 +52,6 @@ public class TestMain {
                 ).toStream("s1", ErpContractMaterial.class)
                 .collect(MyCollectors.groupingAndSum(ErpContractMaterial::getContractNo, ErpContractMaterial::getMoneyTotal));
 
-
+        System.out.println(dataStreamMap);
     }
 }
