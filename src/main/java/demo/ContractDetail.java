@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
-public class ErpContractMaterial implements Serializable {
+public class ContractDetail implements Serializable {
     /**
      * null
      */

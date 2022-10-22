@@ -45,7 +45,7 @@ public class CollectionDataStreamImpl implements CollectionDataStream<Aggregatio
 
     @Override
     public <T1, R> CollectionDataStream<AggregationData> joinUseHashOnEqualCondition(
-            Collection<T1> collection, String tableName, Function<AggregationData, R> aggregationMapper, Function<T1, R> dataValueMapper) {
+            String tableName,Collection<T1> collection,  Function<AggregationData, R> aggregationMapper, Function<T1, R> dataValueMapper) {
         if (this.aggregationDatas.size() <= collection.size()) {
             return joinUseHashOnEqualConditionLeftMain(collection,tableName,aggregationMapper,dataValueMapper);
         } else {
@@ -116,7 +116,7 @@ public class CollectionDataStreamImpl implements CollectionDataStream<Aggregatio
 
     @Override
     public <T1, R> CollectionDataStream<AggregationData> leftJoinUseHashOnEqualCondition(
-            Collection<T1> collection, String tableName, Function<AggregationData, R> aggregationMapper, Function<T1, R> dataValueMapper) {
+            String tableName, Collection<T1> collection,  Function<AggregationData, R> aggregationMapper, Function<T1, R> dataValueMapper) {
         Map<R, List<T1>> collectionMap = collection.stream().collect(Collectors.groupingBy(dataValueMapper));
         List<AggregationData> newAggregationDatas = new ArrayList<>();
         aggregationDatas.forEach(aggregationData -> {

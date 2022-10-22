@@ -5,10 +5,21 @@ import java.util.stream.Stream;
 
 public interface CollectionDataStream<T> {
 
+    /**
+     *将集合转化为数据流，并给一个别名
+     * @param tableName
+     * @param collection
+     * @return
+     */
     static CollectionDataStream<AggregationData> of(String tableName, Collection<?> collection) {
         return new CollectionDataStreamImpl(tableName, collection);
     }
-
+    /**
+     *将 Stream转化为数据流，并给一个别名
+     * @param tableName
+     * @param collection
+     * @return
+     */
     static CollectionDataStream<AggregationData> of(String tableName, Stream<?> collection) {
         return new CollectionDataStreamImpl(tableName, collection);
     }
@@ -22,7 +33,7 @@ public interface CollectionDataStream<T> {
      * @param <T1>
      * @return
      */
-    <T1> CollectionDataStream<T> join(String tableName, Collection<T1> collection, JoinPredicate<T, T1> predict);
+    <T1> CollectionDataStream<T>  join(String tableName, Collection<T1> collection, JoinPredicate<T, T1> predict);
 
     /**
      * 等值内连接，使用map优化
@@ -36,7 +47,7 @@ public interface CollectionDataStream<T> {
      * @return
      */
     //等值条件推荐用法
-    <T1, R> CollectionDataStream<T> joinUseHashOnEqualCondition(Collection<T1> collection, String tableName, Function<T, R> aggregationMapper, Function<T1, R> dataValueMapper);
+    <T1, R> CollectionDataStream<T> joinUseHashOnEqualCondition(String tableName, Collection<T1> collection, Function<T, R> aggregationMapper, Function<T1, R> dataValueMapper);
 
 
     /**
@@ -61,7 +72,7 @@ public interface CollectionDataStream<T> {
      * @param <R>
      * @return
      */
-    <T1, R> CollectionDataStream<T> leftJoinUseHashOnEqualCondition(Collection<T1> collection, String tableName, Function<T, R> aggregationMapper, Function<T1, R> dataValueMapper);
+    <T1, R> CollectionDataStream<T> leftJoinUseHashOnEqualCondition(String tableName, Collection<T1> collection, Function<T, R> aggregationMapper, Function<T1, R> dataValueMapper);
 
     Stream<T> toStream();
 
