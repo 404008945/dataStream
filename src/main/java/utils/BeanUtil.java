@@ -9,32 +9,46 @@ import java.util.Map;
 public class BeanUtil {
 
     /**
-     * 将map装换为javabean对象
+     * 将javaBean转换为hashMap返回
      * @param bean
      * @param bean
      * @return
      */
-    public static Map<String, Object> beanToMap(Object bean) {
+    public static Map<String, Object> beanToHashMap(Object bean) {
         if (bean == null) {
             throw new DataStreamException("bean.can.not.be.null");
         }
         Map<String, Object> map = new HashMap<>();
-        if (bean != null) {
-            BeanMap beanMap = BeanMap.create(bean);
-            for (Object key : beanMap.keySet()) {
-                map.put(key+"", beanMap.get(key));
-            }
+
+        BeanMap beanMap = BeanMap.create(bean);
+        for (Object key : beanMap.keySet()) {
+            map.put(key + "", beanMap.get(key));
         }
+
         return map;
     }
 
-    public  static<T> T mapToBean(Map map,T bean) {
+    public static BeanMap beanToBeanMap(Object bean) {
+        if (bean == null) {
+            throw new DataStreamException("bean.can.not.be.null");
+        }
+        return BeanMap.create(bean);
+    }
+
+    public static <T> T mapToBean(Map map, T bean) {
         if (map == null) {
             throw new DataStreamException("bean.can.not.be.null");
         }
         BeanMap beanMap = BeanMap.create(bean);
         beanMap.putAll(map);
         return bean;
+    }
+
+    public static <T> T beanMapToBean(BeanMap beanMap) {
+        if (beanMap == null) {
+            throw new DataStreamException("bean.can.not.be.null");
+        }
+        return (T) beanMap.getBean();
     }
 
     /**
@@ -49,7 +63,7 @@ public class BeanUtil {
             Object bean;
             for (int i = 0,size = objList.size(); i < size; i++) {
                 bean = objList.get(i);
-                map = beanToMap(bean);
+                map = beanToHashMap(bean);
                 list.add(map);
             }
         }

@@ -1,16 +1,16 @@
 
 import exception.DataStreamException;
+import net.sf.cglib.beans.BeanMap;
 import utils.BeanUtil;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * 用于聚合数据，能够支持表数据的join获取数据，代表一行数据，需要能够聚合多行数据
  */
 public class AggregationData {
-    Map<String, Map> aggregationMap;
+    Map<String, BeanMap> aggregationMap;
 
     private AggregationData(){
         aggregationMap = new HashMap<>();
@@ -19,14 +19,14 @@ public class AggregationData {
     //key 为别名，value为对应对象
     public AggregationData(String tableName, Object data) {
         aggregationMap = new HashMap<>();
-        aggregationMap.put(tableName, BeanUtil.beanToMap(data));
+        aggregationMap.put(tableName, BeanUtil.beanToBeanMap(data));
     }
 
-    public Map<String, Map> getRowAllData() {
+    public Map<String, BeanMap> getRowAllData() {
         return aggregationMap;
     }
 
-    public Map getTableData(String tableName) {
+    public BeanMap getTableData(String tableName) {
         if (!aggregationMap.containsKey(tableName)) {
             throw new DataStreamException(tableName + ".not.exists");
         }
@@ -37,15 +37,18 @@ public class AggregationData {
         if(aggregationMap.containsKey(tableName)){
             throw new DataStreamException(tableName+".has.been.exists!");
         }
-        aggregationMap.put(tableName, BeanUtil.beanToMap(data));
+        aggregationMap.put(tableName, BeanUtil.beanToBeanMap(data));
     }
 
 
-    private void setTableData(String tableName, Map<String, Object> data) {
-        Map<String, Object> tableData =
-                Optional.ofNullable(aggregationMap.get(tableName)).orElse(new HashMap<String, Object>());
-        tableData.putAll(data);
-        aggregationMap.put(tableName, tableData);
+    private void setTableData(String tableName, BeanMap data) {
+        if(aggregationMap.containsKey(tableName)){
+            throw new DataStreamException(tableName+".has.been.exists!");
+        }
+        if(data == null){
+            throw new DataStreamException("data.can.not.be.null");
+        }
+        aggregationMap.put(tableName, data);
     }
 
     public AggregationData copyAggregationData() {
