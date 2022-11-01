@@ -1,4 +1,5 @@
 
+import exception.DataStreamException;
 import utils.BeanUtil;
 
 import java.util.ArrayList;
@@ -15,14 +16,31 @@ public class CollectionDataStreamImpl implements CollectionDataStream<Aggregatio
     private List<AggregationData> aggregationDatas;
 
     public CollectionDataStreamImpl(String tableName, Collection<?> collection) {
-        Objects.requireNonNull(collection);
+        if (collection == null) {
+            throw new DataStreamException("collection.can.not.be.null");
+        }
         this.aggregationDatas = collection.stream()
                 .map(it -> new AggregationData(tableName, it)).collect(Collectors.toList());
     }
 
+    public CollectionDataStreamImpl( Collection<AggregationData> collection) {
+        if (collection == null) {
+            throw new DataStreamException("collection.can.not.be.null");
+        }
+        this.aggregationDatas = collection.stream().collect(Collectors.toList());
+    }
+
     public CollectionDataStreamImpl(String tableName, Stream<?> stream) {
-        Objects.requireNonNull(stream);
+        if (stream == null) {
+            throw new DataStreamException("stream.can.not.be.null");
+        }
         this.aggregationDatas = stream.map(it -> new AggregationData(tableName, it)).collect(Collectors.toList());
+    }
+    public CollectionDataStreamImpl(Stream<AggregationData> stream) {
+        if (stream == null) {
+            throw new DataStreamException("stream.can.not.be.null");
+        }
+        this.aggregationDatas = stream.collect(Collectors.toList());
     }
 
 

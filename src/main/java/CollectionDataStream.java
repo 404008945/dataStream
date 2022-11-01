@@ -25,6 +25,24 @@ public interface CollectionDataStream<T> {
     }
 
     /**
+     *将聚合集合转化为数据流
+     * @param collection
+     * @return
+     */
+    static CollectionDataStream<AggregationData> of(Collection<AggregationData> collection) {
+        return new CollectionDataStreamImpl(collection);
+    }
+
+    /**
+     *将聚合流转化为数据流
+     * @param stream
+     * @return
+     */
+    static CollectionDataStream<AggregationData> of(Stream<AggregationData> stream) {
+        return new CollectionDataStreamImpl(stream);
+    }
+
+    /**
      * 内连接，可自定义连接条件，使用双循环
      *
      * @param tableName
