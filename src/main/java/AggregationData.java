@@ -1,6 +1,5 @@
 
 import exception.DataStreamException;
-import net.sf.cglib.beans.BeanMap;
 import utils.BeanUtil;
 
 import java.util.HashMap;
@@ -10,23 +9,34 @@ import java.util.Map;
  * 用于聚合数据，能够支持表数据的join获取数据，代表一行数据，需要能够聚合多行数据
  */
 public class AggregationData {
-    Map<String, BeanMap> aggregationMap;
+    Map<String, Map> aggregationMap;
 
-    private AggregationData(){
+    private AggregationData() {
         aggregationMap = new HashMap<>();
     }
 
     //key 为别名，value为对应对象
     public AggregationData(String tableName, Object data) {
+        if (data == null) {
+            throw new DataStreamException("data.can.not.be.null");
+        }
+        if (data instanceof AggregationData) {
+            throw new DataStreamException("聚合数据类型AggregationData不支持嵌套使用");
+        }
         aggregationMap = new HashMap<>();
-        aggregationMap.put(tableName, BeanUtil.beanToBeanMap(data));
+        if (data instanceof Map) {
+            aggregationMap.put(tableName, (Map) data);
+        } else {
+            aggregationMap.put(tableName, BeanUtil.beanToBeanMap(data));
+        }
+
     }
 
-    public Map<String, BeanMap> getRowAllData() {
+    public Map<String, Map> getRowAllData() {
         return aggregationMap;
     }
 
-    public BeanMap getTableData(String tableName) {
+    public Map getTableData(String tableName) {
         if (!aggregationMap.containsKey(tableName)) {
             throw new DataStreamException(tableName + ".not.exists");
         }
@@ -34,18 +44,28 @@ public class AggregationData {
     }
 
     public void setTableData(String tableName, Object data) {
-        if(aggregationMap.containsKey(tableName)){
-            throw new DataStreamException(tableName+".has.been.exists!");
+        if (data == null) {
+            throw new DataStreamException("data.can.not.be.null");
+        }
+        if (data instanceof AggregationData) {
+            throw new DataStreamException("聚合数据类型AggregationData不支持嵌套使用");
+        }
+        if (aggregationMap.containsKey(tableName)) {
+            throw new DataStreamException(tableName + ".has.been.exists!");
+        }
+        if (data instanceof Map) {
+            setTableData(tableName, (Map) data);
+            return;
         }
         aggregationMap.put(tableName, BeanUtil.beanToBeanMap(data));
     }
 
 
-    private void setTableData(String tableName, BeanMap data) {
-        if(aggregationMap.containsKey(tableName)){
-            throw new DataStreamException(tableName+".has.been.exists!");
+    private void setTableData(String tableName, Map data) {
+        if (aggregationMap.containsKey(tableName)) {
+            throw new DataStreamException(tableName + ".has.been.exists!");
         }
-        if(data == null){
+        if (data == null) {
             throw new DataStreamException("data.can.not.be.null");
         }
         aggregationMap.put(tableName, data);

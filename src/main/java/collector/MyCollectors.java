@@ -4,6 +4,7 @@ import utils.NumberUtil;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collector;
@@ -41,8 +42,28 @@ public class MyCollectors {
      */
     public static <T, K, U, M extends Map<K, U>>
     Collector<T, ?, Map<K, T>> groupingByMaxComparator(Function<? super T, ? extends K> keyMapper,
-                                                      Comparator<T> comparator) {
+                                                       Comparator<T> comparator) {
         return Collectors.groupingBy(keyMapper, Collectors.collectingAndThen(Collectors.maxBy(comparator), it -> it.orElse(null)));
+    }
+
+    /**
+     * 传入keyMaper。valueMapper和一个比较器
+     * 根据key分组，组内使用比较器进行比较，最终得到一个最大结果,
+     * @param keyMapper
+     * @param comparator
+     * @param <T>
+     * @param <K>
+     * @param <U>
+     * @param <M>
+     * @return
+     */
+    public static <T, K, U, M extends Map<K, U>>
+    Collector<T, ?, Map<K, U>> groupingByMaxComparator(Function<? super T, ? extends K> keyMapper,
+                                                       Function<? super T, ? extends U> valueMapper,
+                                                       Comparator<T> comparator) {
+        return Collectors.groupingBy(keyMapper, Collectors.collectingAndThen(Collectors.maxBy(comparator),
+                it -> valueMapper.apply(it.orElse(null)))
+        );
     }
 
     /**
@@ -59,7 +80,27 @@ public class MyCollectors {
     public static <T, K, U, M extends Map<K, U>>
     Collector<T, ?, Map<K, T>> groupingByMinComparator(Function<? super T, ? extends K> keyMapper,
                                                        Comparator<T> comparator) {
-        return Collectors.groupingBy(keyMapper, Collectors.collectingAndThen(Collectors.maxBy(comparator), it -> it.orElse(null)));
+        return Collectors.groupingBy(keyMapper, Collectors.collectingAndThen(Collectors.minBy(comparator), it -> it.orElse(null)));
+    }
+
+    /**
+     * 传入一个keyMaper,valueMapper和一个比较器
+     * 根据key分组，组内使用比较器进行比较，最终得到一个最大结果
+     * @param keyMapper
+     * @param comparator
+     * @param <T>
+     * @param <K>
+     * @param <U>
+     * @param <M>
+     * @return
+     */
+    public static <T, K, U, M extends Map<K, U>>
+    Collector<T, ?, Map<K, U>> groupingByMinComparator(Function<? super T, ? extends K> keyMapper,
+                                                       Function<? super T, ? extends U> valueMapper,
+                                                       Comparator<T> comparator) {
+        return Collectors.groupingBy(keyMapper, Collectors.collectingAndThen(Collectors.minBy(comparator),
+                it -> valueMapper.apply(it.orElse(null)))
+        );
     }
 
 
@@ -94,6 +135,19 @@ public class MyCollectors {
      */
     public static Collector<BigDecimal, ?, BigDecimal> sum() {
         return Collectors.reducing(BigDecimal.ZERO, NumberUtil::addNumbers);
+    }
+    /**
+     * 按照distinctKey去重
+     * @param distinctKey
+     * @param <T>
+     * @param <K>
+     * @return
+     */
+    public static <T, K>
+    Collector<T, ?, List<T>> distinctBy(Function<? super T, ? extends K> distinctKey) {
+        return Collectors.collectingAndThen(groupingByLast(distinctKey, it -> it),
+                it -> it.values().stream().collect(Collectors.toList())
+        );
     }
 }
 

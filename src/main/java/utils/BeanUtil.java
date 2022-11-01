@@ -14,7 +14,7 @@ public class BeanUtil {
      * @param bean
      * @return
      */
-    public static Map<String, Object> beanToHashMap(Object bean) {
+    public static Map<String, Object> beanToMap(Object bean) {
         if (bean == null) {
             throw new DataStreamException("bean.can.not.be.null");
         }
@@ -63,7 +63,7 @@ public class BeanUtil {
             Object bean;
             for (int i = 0,size = objList.size(); i < size; i++) {
                 bean = objList.get(i);
-                map = beanToHashMap(bean);
+                map = beanToMap(bean);
                 list.add(map);
             }
         }
@@ -104,6 +104,9 @@ public class BeanUtil {
         }
         if (clazz == null) {
             throw new DataStreamException("clazz.can.not.be.null");
+        }
+        if(data instanceof BeanMap){
+            return beanMapToBean((BeanMap)data);
         }
         T bean;
         try {

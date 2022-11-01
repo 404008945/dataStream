@@ -151,7 +151,7 @@ public class CollectionDataStreamImpl implements CollectionDataStream<Aggregatio
     }
 
     public <R> Stream<R> toStream(String tableName, Class<R> clzz) {
-        return aggregationDatas.stream().map(it -> BeanUtil.beanMapToBean(it.getTableData(tableName)));
+        return aggregationDatas.stream().map(it -> BeanUtil.mapToBean(it.getTableData(tableName),clzz));
     }
 
 
