@@ -17,7 +17,7 @@ public class CollectionDataStreamImpl implements CollectionDataStream<Aggregatio
 
     private List<AggregationData> aggregationDatas;
 
-    private Map emptyMap =  Collections.unmodifiableMap(new HashMap<>());
+    final private Map emptyMap =  Collections.unmodifiableMap(new HashMap<>());
 
     public CollectionDataStreamImpl(String tableName, Collection<?> collection) {
         if (collection == null) {
