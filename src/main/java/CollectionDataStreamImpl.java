@@ -50,12 +50,6 @@ public class CollectionDataStreamImpl implements CollectionDataStream<Aggregatio
 
     @Override
     public <T1> CollectionDataStream<AggregationData> join( String tableName,Collection<T1> collection, JoinPredicate<AggregationData, T1> predict) {
-        if (CollectionUtils.isEmpty(collection)) {
-            for (AggregationData aggregationData : this.aggregationDatas) {
-                aggregationData.setTableData(tableName, emptyMap);
-            }
-            return this;
-        }
         List<AggregationData> newAggregationDatas = new ArrayList<>();
         aggregationDatas.forEach(aggregationData -> {
             for (T1 data : collection) {
@@ -74,12 +68,6 @@ public class CollectionDataStreamImpl implements CollectionDataStream<Aggregatio
     @Override
     public <T1, R> CollectionDataStream<AggregationData> joinUseHashOnEqualCondition(
             String tableName,Collection<T1> collection,  Function<AggregationData, R> aggregationMapper, Function<T1, R> dataValueMapper) {
-        if (CollectionUtils.isEmpty(collection)) {
-            for (AggregationData aggregationData : this.aggregationDatas) {
-                aggregationData.setTableData(tableName, emptyMap);
-            }
-            return this;
-        }
         if (this.aggregationDatas.size() <= collection.size()) {
             return joinUseHashOnEqualConditionLeftMain(collection,tableName,aggregationMapper,dataValueMapper);
         } else {
