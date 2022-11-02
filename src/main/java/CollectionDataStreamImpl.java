@@ -1,12 +1,14 @@
 
 import exception.DataStreamException;
+import org.apache.commons.collections.CollectionUtils;
 import utils.BeanUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -14,6 +16,8 @@ import java.util.stream.Stream;
 public class CollectionDataStreamImpl implements CollectionDataStream<AggregationData> {
 
     private List<AggregationData> aggregationDatas;
+
+    private Map emptyMap =  Collections.unmodifiableMap(new HashMap<>());
 
     public CollectionDataStreamImpl(String tableName, Collection<?> collection) {
         if (collection == null) {
@@ -46,6 +50,12 @@ public class CollectionDataStreamImpl implements CollectionDataStream<Aggregatio
 
     @Override
     public <T1> CollectionDataStream<AggregationData> join( String tableName,Collection<T1> collection, JoinPredicate<AggregationData, T1> predict) {
+        if (CollectionUtils.isEmpty(collection)) {
+            for (AggregationData aggregationData : this.aggregationDatas) {
+                aggregationData.setTableData(tableName, emptyMap);
+            }
+            return this;
+        }
         List<AggregationData> newAggregationDatas = new ArrayList<>();
         aggregationDatas.forEach(aggregationData -> {
             for (T1 data : collection) {
@@ -64,6 +74,12 @@ public class CollectionDataStreamImpl implements CollectionDataStream<Aggregatio
     @Override
     public <T1, R> CollectionDataStream<AggregationData> joinUseHashOnEqualCondition(
             String tableName,Collection<T1> collection,  Function<AggregationData, R> aggregationMapper, Function<T1, R> dataValueMapper) {
+        if (CollectionUtils.isEmpty(collection)) {
+            for (AggregationData aggregationData : this.aggregationDatas) {
+                aggregationData.setTableData(tableName, emptyMap);
+            }
+            return this;
+        }
         if (this.aggregationDatas.size() <= collection.size()) {
             return joinUseHashOnEqualConditionLeftMain(collection,tableName,aggregationMapper,dataValueMapper);
         } else {
@@ -112,6 +128,12 @@ public class CollectionDataStreamImpl implements CollectionDataStream<Aggregatio
 
     @Override
     public <T1> CollectionDataStream<AggregationData> leftJoin( String tableName,Collection<T1> collection, JoinPredicate<AggregationData, T1> predict) {
+        if (CollectionUtils.isEmpty(collection)) {
+            for (AggregationData aggregationData : this.aggregationDatas) {
+                aggregationData.setTableData(tableName, emptyMap);
+            }
+            return this;
+        }
         List<AggregationData> newAggregationDatas = new ArrayList<>();
         aggregationDatas.forEach(aggregationData -> {
             boolean joinFlag = false;
@@ -124,7 +146,9 @@ public class CollectionDataStreamImpl implements CollectionDataStream<Aggregatio
                 }
             }
             if (!joinFlag) {//左连接至少保留一条
-                newAggregationDatas.add(aggregationData.copyAggregationData());
+                AggregationData data = aggregationData.copyAggregationData();
+                data.setTableData(tableName,emptyMap);
+                newAggregationDatas.add(data);
             }
         });
         //连接完毕替换当前数据
@@ -134,7 +158,13 @@ public class CollectionDataStreamImpl implements CollectionDataStream<Aggregatio
 
     @Override
     public <T1, R> CollectionDataStream<AggregationData> leftJoinUseHashOnEqualCondition(
-            String tableName, Collection<T1> collection,  Function<AggregationData, R> aggregationMapper, Function<T1, R> dataValueMapper) {
+            String tableName,Collection<T1> collection,  Function<AggregationData, R> aggregationMapper, Function<T1, R> dataValueMapper) {
+        if (CollectionUtils.isEmpty(collection)) {
+            for (AggregationData aggregationData : this.aggregationDatas) {
+                aggregationData.setTableData(tableName, emptyMap);
+            }
+            return this;
+        }
         Map<R, List<T1>> collectionMap = collection.stream().collect(Collectors.groupingBy(dataValueMapper));
         List<AggregationData> newAggregationDatas = new ArrayList<>();
         aggregationDatas.forEach(aggregationData -> {
@@ -149,7 +179,9 @@ public class CollectionDataStreamImpl implements CollectionDataStream<Aggregatio
                 }
             }
             if (!joinFlag) {//左连接至少保留一条
-                newAggregationDatas.add(aggregationData.copyAggregationData());
+                AggregationData data = aggregationData.copyAggregationData();
+                data.setTableData(tableName,emptyMap);
+                newAggregationDatas.add(data);
             }
         });
         //连接完毕替换当前数据
